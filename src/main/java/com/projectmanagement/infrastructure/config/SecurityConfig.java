@@ -27,10 +27,11 @@ public class SecurityConfig {
                 http
                                 .cors(cors -> cors.configurationSource(request -> {
                                         var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
-                                        corsConfiguration.setAllowedOrigins(java.util.List.of("*"));
+                                        corsConfiguration.setAllowedOriginPatterns(java.util.List.of("*"));
                                         corsConfiguration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT",
                                                         "DELETE", "OPTIONS", "PATCH"));
                                         corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
+                                        corsConfiguration.setAllowCredentials(true);
                                         return corsConfiguration;
                                 }))
                                 .csrf(csrf -> csrf.disable())
