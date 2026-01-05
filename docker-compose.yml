@@ -1,0 +1,41 @@
+services:
+  app:
+    build: .
+    container_name: tf-app-final
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://tf-db-final:3306/projectdb?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=Qwe.123*
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - tf-net-final
+
+  db:
+    image: mysql:8.0
+    container_name: tf-db-final
+    environment:
+      MYSQL_ROOT_PASSWORD: Qwe.123*
+      MYSQL_DATABASE: projectdb
+    ports:
+      - "3309:3306"
+    volumes:
+      - tf-vol-final:/var/lib/mysql
+    networks:
+      - tf-net-final
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pQwe.123*" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  tf-vol-final:
+
+
+networks:
+  tf-net-final:
