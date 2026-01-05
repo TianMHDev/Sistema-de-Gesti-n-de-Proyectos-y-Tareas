@@ -1,11 +1,11 @@
 services:
   app:
     build: .
-    container_name: tf-app-final
+    container_name: tf-app-v2
     ports:
-      - "8085:8085"
+      - "8086:8085"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://tf-db-final:3306/projectdb?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_URL=jdbc:mysql://tf-db-v2:3306/projectdb?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=Qwe.123*
     depends_on:
@@ -16,12 +16,12 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: tf-db-final
+    container_name: tf-db-v2
     environment:
       MYSQL_ROOT_PASSWORD: Qwe.123*
       MYSQL_DATABASE: projectdb
     ports:
-      - "3309:3306"
+      - "3310:3306"
     volumes:
       - tf-vol-final:/var/lib/mysql
     networks:

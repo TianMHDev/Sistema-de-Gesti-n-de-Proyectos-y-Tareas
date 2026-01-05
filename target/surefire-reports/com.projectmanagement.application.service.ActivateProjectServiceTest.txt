@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.projectmanagement.application.service.ActivateProjectServiceTest
--------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.689 s -- in com.projectmanagement.application.service.ActivateProjectServiceTest

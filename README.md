@@ -9,23 +9,43 @@ This is a professional project and task management system developed with **Sprin
 - **Maven 3.8+**.
 - **MySQL 8.0**.
 
-### Option 1: Local Execution
-1.  **Database Configuration**: Ensure MySQL is running and create a database named `projectdb` (or allow the system to create it automatically).
-2.  **Properties**: Adjust the connection credentials in `src/main/resources/application.properties` if necessary.
-3.  **Build and Run**:
+### Option 1: Local Execution (Recommended for Dev)
+1.  **Database**: Start only the database container:
     ```bash
-    mvn clean package
-    mvn spring-boot:run
+    docker-compose up -d db
     ```
-4.  **Access**: The backend will be available at `http://localhost:8085`. Open the `frontend/index.html` file in your browser.
+2.  **Run Application**: Use the `local` profile to connect to the Docker database:
+    ```bash
+    mvn spring-boot:run -Dspring-boot.run.profiles=local
+    ```
+3.  **Access**: 
+    - **Frontend**: Open `frontend/index.html` (Change `API_URL` to `http://localhost:8086/api` in `frontend/js/app.js`).
+    - **Swagger UI**: [http://localhost:8086/swagger-ui/index.html](http://localhost:8086/swagger-ui/index.html)
+    - **API Docs (JSON)**: [http://localhost:8086/v3/api-docs](http://localhost:8086/v3/api-docs)
 
-### Option 2: Docker (Recommended)
-1.  Ensure you have Docker installed.
-2.  Run the command:
+### Option 2: Full Docker Execution
+1.  Run everything:
     ```bash
     docker-compose up --build
     ```
-3.  The system will automatically start the database and the backend on port `8085`.
+2.  The backend will be on port `8086`.
+
+### 🛑 Stop the System
+To stop all containers started with Docker:
+```bash
+docker-compose -p taskflow down
+```
+*(If you used `docker-compose up` without `-p`, use `docker-compose down`).*
+
+
+---
+
+## 🧪 Testing
+The project includes unit tests for the business logic. To run them:
+```bash
+mvn test
+```
+*Note: Tests use Mockito and do not require a running database.*
 
 ---
 

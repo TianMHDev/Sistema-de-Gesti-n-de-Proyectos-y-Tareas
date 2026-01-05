@@ -1,4 +1,7 @@
-const API_URL = 'https://taskflow-backend-i8wn.onrender.com/api';
+// Set API_URL based on environment
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8086/api'
+    : 'https://taskflow-backend-i8wn.onrender.com/api';
 let authToken = localStorage.getItem('token');
 let currentProjectId = null;
 
