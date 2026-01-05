@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: taskflow-backend
+    env: docker
+    plan: free
+    region: oregon 
+    envVars:
+      - key: PORT
+        value: 8085
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://mysql-3cec0aee-hado6529-2281.l.aivencloud.com:17109/defaultdb?useSSL=true
+      - key: SPRING_DATASOURCE_USERNAME
+        value: avnadmin
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false # SET YOUR AIVEN PASSWORD MANUALLY IN RENDER DASHBOARD
+      - key: JWT_SECRET
+        generateValue: true
