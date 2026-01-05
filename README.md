@@ -1,45 +1,45 @@
-# Sistema de Gestión de Proyectos y Tareas
+# Project and Task Management System
 
-Este es un sistema profesional para la gestión de proyectos y tareas, desarrollado con **Spring Boot 3** y una arquitectura robusta.
+This is a professional project and task management system developed with **Spring Boot 3** and a robust architecture.
 
-## 🚀 Pasos para Ejecutar la Aplicación
+## 🚀 Steps to Run the Application
 
-### Requisitos Previos
-- **Java 17** o superior.
+### Prerequisites
+- **Java 17** or higher.
 - **Maven 3.8+**.
 - **MySQL 8.0**.
 
-### Opción 1: Ejecución Local
-1.  **Configuración de Base de Datos**: Asegúrate de tener MySQL corriendo y crea una base de datos llamada `projectdb` (o permite que el sistema la cree automáticamente).
-2.  **Propiedades**: Ajusta las credenciales de conexión en `src/main/resources/application.properties` si es necesario.
-3.  **Compilar y Ejecutar**:
+### Option 1: Local Execution
+1.  **Database Configuration**: Ensure MySQL is running and create a database named `projectdb` (or allow the system to create it automatically).
+2.  **Properties**: Adjust the connection credentials in `src/main/resources/application.properties` if necessary.
+3.  **Build and Run**:
     ```bash
     mvn clean package
     mvn spring-boot:run
     ```
-4.  **Acceso**: El backend estará disponible en `http://localhost:8085`. Abre el archivo `frontend/index.html` en tu navegador.
+4.  **Access**: The backend will be available at `http://localhost:8085`. Open the `frontend/index.html` file in your browser.
 
-### Opción 2: Docker (Recomendado)
-1.  Asegúrate de tener Docker instalado.
-2.  Ejecuta el comando:
+### Option 2: Docker (Recommended)
+1.  Ensure you have Docker installed.
+2.  Run the command:
     ```bash
     docker-compose up --build
     ```
-3.  El sistema levantará automáticamente la base de datos y el backend en el puerto `8085`.
+3.  The system will automatically start the database and the backend on port `8085`.
 
 ---
 
-## 🔐 Credenciales de Prueba
-El sistema incluye un inicializador de datos automático con las siguientes credenciales:
-- **Usuario:** `admin`
-- **Contraseña:** `123456`
+## 🔐 Test Credentials
+The system includes an automatic data initializer with the following credentials:
+- **Username:** `admin`
+- **Password:** `123456`
 
 ---
 
-## 🛠️ Decisiones Técnicas
+## 🛠️ Technical Decisions
 
--   **Arquitectura Hexagonal (Clean Architecture)**: Se implementó una clara separación entre el dominio, los casos de uso (aplicación) y la infraestructura. Esto facilita el mantenimiento, las pruebas unitarias y permite cambiar componentes (como la base de datos) con un impacto mínimo.
--   **Seguridad con JWT (JSON Web Tokens)**: Se optó por una autenticación apátrida (stateless) mediante Spring Security y JWT, garantizando una comunicación segura entre el frontend y los endpoints del API.
--   **Soft Delete (Borrado Lógico)**: Tanto proyectos como tareas utilizan una bandera `deleted`. Esto protege la integridad referencial y permite auditorías o recuperaciones de datos accidentales.
--   **Frontend "Pure Vanilla"**: Se desarrolló la interfaz con HTML5, CSS3 (con diseño responsivo y premium) y JavaScript nativo. Esto asegura una carga instantánea, evita dependencias pesadas y demuestra solvencia en los fundamentos de la web.
--   **Base de Datos Relacional (MySQL)**: Se seleccionó MySQL por su robustez y amplia compatibilidad para la persistencia de relaciones complejas entre proyectos y tareas.
+-   **Hexagonal Architecture (Clean Architecture)**: A clear separation was implemented between the domain, use cases (application), and infrastructure. This facilitates maintenance, unit testing, and allows components (such as the database) to be changed with minimal impact.
+-   **Security with JWT (JSON Web Tokens)**: Stateless authentication was chosen using Spring Security and JWT, ensuring secure communication between the frontend and the API endpoints.
+-   **Soft Delete (Logical Deletion)**: Both projects and tasks use a `deleted` flag. This protects referential integrity and allows for auditing or accidental data recovery.
+-   **"Pure Vanilla" Frontend**: The interface was developed with HTML5, CSS3 (with responsive and premium design), and native JavaScript. This ensures instant loading, avoids heavy dependencies, and demonstrates proficiency in web fundamentals.
+-   **Relational Database (MySQL)**: MySQL was selected for its robustness and wide compatibility for persisting complex relationships between projects and tasks.
