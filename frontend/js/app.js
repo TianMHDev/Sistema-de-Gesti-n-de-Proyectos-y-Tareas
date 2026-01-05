@@ -1,4 +1,4 @@
-const API_URL = 'https://taskflow-backend-i8wn.onrender.com';
+const API_URL = 'https://taskflow-backend-i8wn.onrender.com/api';
 let authToken = localStorage.getItem('token');
 let currentProjectId = null;
 
