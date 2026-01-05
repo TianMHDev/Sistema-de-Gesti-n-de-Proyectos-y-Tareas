@@ -8,7 +8,7 @@ services:
       - key: PORT
         value: 8085
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:mysql://mysql-3cec0aee-hado6529-2281.l.aivencloud.com:17109/defaultdb?useSSL=true
+        value: jdbc:mysql://mysql-3cec0aee-hado6529-2281.i.aivencloud.com:17109/defaultdb?useSSL=true
       - key: SPRING_DATASOURCE_USERNAME
         value: avnadmin
       - key: SPRING_DATASOURCE_PASSWORD
