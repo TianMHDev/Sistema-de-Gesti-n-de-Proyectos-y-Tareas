@@ -24,6 +24,7 @@ public class TaskRepositoryAdapter implements TaskRepositoryPort {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "tasks", key = "#task.projectId")
     public Task save(Task task) {
         TaskEntity entity = mapper.toEntity(task);
         TaskEntity saved = repository.save(entity);
@@ -38,6 +39,7 @@ public class TaskRepositoryAdapter implements TaskRepositoryPort {
     }
 
     @Override
+    @org.springframework.cache.annotation.Cacheable(value = "tasks", key = "#projectId")
     public List<Task> findByProjectIdAndDeletedFalse(UUID projectId) {
         return repository.findByProjectIdAndDeletedFalse(projectId)
                 .stream()
