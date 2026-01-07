@@ -102,6 +102,11 @@ function logout() {
 // ==========================================
 
 async function loadProjects() {
+    const grid = document.getElementById('projects-grid');
+    if (grid) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 10px">Cargando proyectos...</p></div>';
+    }
+
     try {
         const res = await fetch(`${API_URL}/projects`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
@@ -112,7 +117,8 @@ async function loadProjects() {
         renderProjects(projects);
     } catch (err) {
         console.error(err);
-        showToast('Failed to load projects', 'error');
+        showToast('Error al cargar proyectos', 'error');
+        if (grid) grid.innerHTML = '<p style="text-align:center; color: var(--danger)">Error al cargar proyectos.</p>';
     }
 }
 

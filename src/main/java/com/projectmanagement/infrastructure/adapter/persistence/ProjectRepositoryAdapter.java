@@ -22,6 +22,7 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "projects", key = "#project.ownerId")
     public Project save(Project project) {
         ProjectEntity entity = mapper.toEntity(project);
         ProjectEntity saved = repository.save(entity);

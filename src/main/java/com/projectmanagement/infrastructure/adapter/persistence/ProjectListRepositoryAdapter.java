@@ -21,6 +21,7 @@ public class ProjectListRepositoryAdapter implements ProjectListPort {
     }
 
     @Override
+    @org.springframework.cache.annotation.Cacheable(value = "projects", key = "#ownerId")
     public List<Project> findAllByOwnerId(java.util.UUID ownerId) {
         return repository.findByOwnerIdAndDeletedFalse(ownerId).stream()
                 .map(mapper::toDomain)
