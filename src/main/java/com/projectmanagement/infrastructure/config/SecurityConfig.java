@@ -47,7 +47,13 @@ public class SecurityConfig {
                                                                 "/configuration/security",
                                                                 "/swagger-ui/**",
                                                                 "/webjars/**",
-                                                                "/swagger-ui.html")
+                                                                "/swagger-ui.html",
+                                                                "/",
+                                                                "/index.html",
+                                                                "/css/**",
+                                                                "/js/**",
+                                                                "/assets/**",
+                                                                "/favicon.ico")
                                                 .permitAll()
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session

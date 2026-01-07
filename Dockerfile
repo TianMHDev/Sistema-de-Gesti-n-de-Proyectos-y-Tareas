@@ -5,6 +5,8 @@ COPY pom.xml .
 # Download dependencies first to leverage Docker cache
 RUN mvn dependency:go-offline
 COPY src ./src
+RUN mkdir -p src/main/resources/static
+COPY frontend ./src/main/resources/static
 RUN mvn clean package -DskipTests
 
 # Run stage
