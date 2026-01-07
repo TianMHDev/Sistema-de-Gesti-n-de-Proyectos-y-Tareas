@@ -284,40 +284,52 @@ async function openTaskModal(project) {
     loadTasksForProject(project.id);
 }
 
+
+let currentTasks = []; // Estado local para tareas
+
 async function loadTasksForProject(projectId) {
     const list = document.getElementById('modal-task-list');
-    list.innerHTML = '<small style="color:var(--text-muted);">Loading...</small>';
+    
+    // Loading state solo si esta vacio para evitar parpadeo
+    if (currentTasks.length === 0) {
+        list.innerHTML = '<small style="color:var(--text-muted); display:block; text-align:center;">Cargando tareas...</small>';
+    }
 
     try {
         const res = await fetch(`${API_URL}/projects/${projectId}/tasks`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
 
-        const tasks = await res.json();
-        list.innerHTML = tasks.length ? '' : '<div style="text-align:center; padding:2rem; color:var(--text-muted)">No tasks found. Add one below!</div>';
-
-        tasks.forEach(task => {
-            const div = document.createElement('div');
-            div.className = `task-item ${task.completed ? 'completed' : ''}`;
-            div.innerHTML = `
-                <div class="task-actions" style="margin-right: 15px;">
-                     <button class="check-btn" onclick="completeTask('${task.id}')" title="Mark Complete">
-                        <i class="fas fa-check"></i>
-                     </button>
-                </div>
-                <span class="task-title-text">${task.title}</span>
-                <div class="task-actions">
-                    ${!task.completed ? `
-                        <button class="icon-btn edit-task-btn" onclick="showEditTaskModal('${task.id}', '${task.title}')" title="Edit Task"><i class="fas fa-edit"></i></button>
-                        <button class="icon-btn delete-task-btn" onclick="deleteTask('${task.id}')" title="Delete Task"><i class="fas fa-trash"></i></button>
-                    ` : ''}
-                </div>
-            `;
-            list.appendChild(div);
-        });
+        currentTasks = await res.json();
+        renderTasks(currentTasks);
     } catch (err) {
         list.innerText = 'Error loading tasks.';
     }
+}
+
+function renderTasks(tasks) {
+    const list = document.getElementById('modal-task-list');
+    list.innerHTML = tasks.length ? '' : '<div style="text-align:center; padding:2rem; color:var(--text-muted)">No tasks found. Add one below!</div>';
+
+    tasks.forEach(task => {
+        const div = document.createElement('div');
+        div.className = `task-item ${task.completed ? 'completed' : ''}`;
+        div.innerHTML = `
+            <div class="task-actions" style="margin-right: 15px;">
+                    <button class="check-btn" onclick="completeTask('${task.id}')" title="Mark Complete">
+                    <i class="fas fa-check"></i>
+                    </button>
+            </div>
+            <span class="task-title-text">${task.title}</span>
+            <div class="task-actions">
+                ${!task.completed ? `
+                    <button class="icon-btn edit-task-btn" onclick="showEditTaskModal('${task.id}', '${task.title}')" title="Edit Task"><i class="fas fa-edit"></i></button>
+                    <button class="icon-btn delete-task-btn" onclick="deleteTask('${task.id}')" title="Delete Task"><i class="fas fa-trash"></i></button>
+                ` : ''}
+            </div>
+        `;
+        list.appendChild(div);
+    });
 }
 
 document.getElementById('add-task-form').addEventListener('submit', async (e) => {
@@ -339,9 +351,13 @@ document.getElementById('add-task-form').addEventListener('submit', async (e) =>
 
         if (!res.ok) throw new Error('Failed to add task');
 
+        const newTask = await res.json();
+        currentTasks.push(newTask);
+        renderTasks(currentTasks); // Actualizacion optimista (bueno, casi, esperamos respuesta para ID)
+        
         input.value = '';
-        loadTasksForProject(currentProjectId);
         showToast('Task added', 'success');
+        // loadTasksForProject(currentProjectId); // Ya no necesario
     } catch (err) {
         showToast(err.message, 'error');
     }
@@ -359,6 +375,12 @@ document.getElementById('edit-task-form').addEventListener('submit', async (e) =
     const id = document.getElementById('edit-task-id').value;
     const title = document.getElementById('edit-task-title').value;
 
+    // Optimistic Update
+    const prevTasks = [...currentTasks];
+    currentTasks = currentTasks.map(t => t.id === id ? { ...t, title } : t);
+    renderTasks(currentTasks);
+    closeModal('edit-task-modal');
+
     try {
         const res = await fetch(`${API_URL}/tasks/${id}`, {
             method: 'PUT',
@@ -370,11 +392,13 @@ document.getElementById('edit-task-form').addEventListener('submit', async (e) =
         });
 
         if (!res.ok) throw new Error('Failed to update task');
-
-        closeModal('edit-task-modal');
+        
         showToast('Task updated', 'success');
-        loadTasksForProject(currentProjectId);
+        // loadTasksForProject(currentProjectId);
     } catch (err) {
+        // Revert
+        currentTasks = prevTasks;
+        renderTasks(currentTasks);
         showToast(err.message, 'error');
     }
 });
@@ -387,6 +411,11 @@ async function deleteTask(taskId) {
 
     if (!confirmed) return;
 
+    // Optimistic Update
+    const prevTasks = [...currentTasks];
+    currentTasks = currentTasks.filter(t => t.id !== taskId);
+    renderTasks(currentTasks);
+
     try {
         const res = await fetch(`${API_URL}/tasks/${taskId}`, {
             method: 'DELETE',
@@ -396,13 +425,19 @@ async function deleteTask(taskId) {
         if (!res.ok) throw new Error('Failed to delete task');
 
         showToast('Task deleted', 'success');
-        loadTasksForProject(currentProjectId);
     } catch (err) {
+        currentTasks = prevTasks;
+        renderTasks(currentTasks);
         showToast(err.message, 'error');
     }
 }
 
 async function completeTask(taskId) {
+    // Optimistic Update
+    const prevTasks = [...currentTasks];
+    currentTasks = currentTasks.map(t => t.id === taskId ? { ...t, completed: true } : t);
+    renderTasks(currentTasks);
+
     try {
         const res = await fetch(`${API_URL}/tasks/${taskId}/complete`, {
             method: 'PATCH',
@@ -412,8 +447,9 @@ async function completeTask(taskId) {
         if (!res.ok) throw new Error('Failed to complete task');
 
         showToast('Task completed!', 'success');
-        loadTasksForProject(currentProjectId);
     } catch (err) {
+        currentTasks = prevTasks;
+        renderTasks(currentTasks);
         showToast(err.message, 'error');
     }
 }
