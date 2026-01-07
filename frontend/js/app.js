@@ -101,10 +101,16 @@ function logout() {
 // Projects
 // ==========================================
 
+
+let allProjects = []; // Estado local para UI optimista
+
 async function loadProjects() {
     const grid = document.getElementById('projects-grid');
     if (grid) {
-        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 10px">Cargando proyectos...</p></div>';
+        // Solo mostrar loading si no tenemos proyectos cargados (evita parpadeo en recargas)
+        if (allProjects.length === 0) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 10px">Cargando proyectos...</p></div>';
+        }
     }
 
     try {
@@ -113,17 +119,18 @@ async function loadProjects() {
         });
         if (res.status === 401 || res.status === 403) return logout();
 
-        const projects = await res.json();
-        renderProjects(projects);
+        allProjects = await res.json(); // Guardar en estado global
+        renderProjects(allProjects);
     } catch (err) {
         console.error(err);
         showToast('Error al cargar proyectos', 'error');
-        if (grid) grid.innerHTML = '<p style="text-align:center; color: var(--danger)">Error al cargar proyectos.</p>';
+        if (grid && allProjects.length === 0) grid.innerHTML = '<p style="text-align:center; color: var(--danger)">Error al cargar proyectos.</p>';
     }
 }
 
 function renderProjects(projects) {
     const grid = document.getElementById('projects-grid');
+    if (!grid) return;
     grid.innerHTML = '';
 
     projects.forEach(project => {
@@ -175,6 +182,14 @@ document.getElementById('create-project-form').addEventListener('submit', async 
     const method = editId ? 'PUT' : 'POST';
     const url = editId ? `${API_URL}/projects/${editId}` : `${API_URL}/projects`;
 
+    // Optimistic UI para Edición (si es nuevo, esperamos respuesta para tener ID)
+    const oldProjects = [...allProjects];
+    if (editId) {
+        allProjects = allProjects.map(p => p.id === editId ? { ...p, name: name } : p);
+        renderProjects(allProjects);
+        closeModal('create-project-modal');
+    }
+
     try {
         const res = await fetch(url, {
             method: method,
@@ -187,10 +202,27 @@ document.getElementById('create-project-form').addEventListener('submit', async 
 
         if (!res.ok) throw new Error(`Failed to ${editId ? 'update' : 'create'} project`);
 
-        closeModal('create-project-modal');
+        const savedProject = await res.json();
+        
+        if (!editId) {
+            // Si es creación, agregamos ahora que tenemos el ID real
+            allProjects.push(savedProject);
+            renderProjects(allProjects);
+            closeModal('create-project-modal');
+        } else {
+            // Actualizamos con la respuesta real del servidor por si acaso
+            allProjects = allProjects.map(p => p.id === savedProject.id ? savedProject : p);
+            renderProjects(allProjects);
+        }
+
         showToast(`Project ${editId ? 'updated' : 'created'} successfully`, 'success');
-        loadProjects();
+        // loadProjects(); // YA NO ES NECESARIO RECARGAR TODO
     } catch (err) {
+        // Revertir en caso de error
+        if (editId) {
+            allProjects = oldProjects;
+            renderProjects(allProjects);
+        }
         showToast(err.message, 'error');
     }
 });
@@ -203,6 +235,12 @@ async function deleteProject(projectId) {
 
     if (!confirmed) return;
 
+    // ACTUALIZACIÓN OPTIMISTA: Borrar inmediatamente de la pantalla
+    const previousProjects = [...allProjects];
+    allProjects = allProjects.filter(p => p.id !== projectId);
+    renderProjects(allProjects);
+    showToast('Project deleted (syncing...)', 'info');
+
     try {
         const res = await fetch(`${API_URL}/projects/${projectId}`, {
             method: 'DELETE',
@@ -212,9 +250,13 @@ async function deleteProject(projectId) {
         if (!res.ok) throw new Error('Failed to delete project');
 
         showToast('Project deleted successfully', 'success');
-        loadProjects();
+        // loadProjects(); // Ya no es necesario
     } catch (err) {
-        showToast(err.message, 'error');
+        // Si falla, revertimos los cambios visuales
+        console.error(err);
+        allProjects = previousProjects;
+        renderProjects(allProjects);
+        showToast('Error deleting project', 'error');
     }
 }
 
